@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #7f1d1d; /* Bordo */
+  --secondary-color: #f8fafc; /* Beyaz/Açık gri */
+  --accent-color: #be123c; /* Koyu kırmızı */
+  --background-light: #ffffff;
+  --text-light: #1f2937;
+  --background-dark: #0f172a;
+  --text-dark: #f3f4f6;
+}
+
+/* Karanlık mod değişkenleri */
+.dark {
+  --background: var(--background-dark);
+  --text-color: var(--text-dark);
+}
+
+/* Aydınlık mod değişkenleri */
+:root:not(.dark) {
+  --background: var(--background-light);
+  --text-color: var(--text-light);
+}
+
+@layer base {
+  body {
+    @apply bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl;
+  }
+
+  h5 {
+    @apply text-lg md:text-xl;
+  }
+
+  h6 {
+    @apply text-base md:text-lg;
+  }
+}
+
+@layer components {
+  .container {
+    @apply px-4 mx-auto max-w-7xl;
+  }
+
+  .btn {
+    @apply px-6 py-2 rounded-md font-medium transition-colors duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-burgundy-700 text-white hover:bg-burgundy-800;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+  }
+
+  .btn-accent {
+    @apply bg-rose-600 text-white hover:bg-rose-700;
+  }
+
+  .btn-outline {
+    @apply border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md 
+    bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+    focus:outline-none focus:ring-2 focus:ring-burgundy-500;
+  }
+} 

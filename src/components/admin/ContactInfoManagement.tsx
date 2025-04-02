@@ -1,0 +1,334 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { 
+  getDocument, 
+  updateDocument, 
+  addDocument,
+  deleteDocument,
+  setDocument
+} from '@/firebase/firebaseServices';
+
+interface ContactInfo {
+  id?: string;
+  address: string;
+  phone: string;
+  email: string;
+  workingHours: string;
+  mapEmbedUrl: string;
+  socialMedia: {
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    youtube?: string;
+  };
+}
+
+interface ContactInfoManagementProps {
+  isActive: boolean;
+}
+
+export default function ContactInfoManagement({ isActive }: ContactInfoManagementProps) {
+  const [contactInfo, setContactInfo] = useState<ContactInfo>({
+    address: '',
+    phone: '',
+    email: '',
+    workingHours: '',
+    mapEmbedUrl: '',
+    socialMedia: {
+      facebook: '',
+      twitter: '',
+      instagram: '',
+      youtube: ''
+    }
+  });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ text: '', type: '' });
+  const [contactInfoId, setContactInfoId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isActive) {
+      fetchContactInfo();
+    }
+  }, [isActive]);
+
+  const fetchContactInfo = async () => {
+    try {
+      const existingDoc = await getDocument('contactInfo', 'main') as any;
+      
+      if (existingDoc) {
+        console.log('Admin: Mevcut iletişim bilgileri bulundu:', existingDoc);
+        setContactInfo({
+          address: existingDoc.address || '',
+          phone: existingDoc.phone || '',
+          email: existingDoc.email || '',
+          workingHours: existingDoc.workingHours || '',
+          mapEmbedUrl: existingDoc.mapEmbedUrl || '',
+          socialMedia: {
+            facebook: existingDoc.socialMedia?.facebook || '',
+            twitter: existingDoc.socialMedia?.twitter || '',
+            instagram: existingDoc.socialMedia?.instagram || '',
+            youtube: existingDoc.socialMedia?.youtube || ''
+          }
+        });
+        setContactInfoId('main');
+      } else {
+        console.log('Admin: İletişim bilgileri bulunamadı');
+        setContactInfoId(null);
+      }
+    } catch (error) {
+      console.error('Admin: İletişim bilgileri alınırken hata oluştu:', error);
+    }
+  };
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    
+    if (name.startsWith('socialMedia.')) {
+      const socialMediaField = name.split('.')[1];
+      setContactInfo(prev => ({
+        ...prev,
+        socialMedia: {
+          ...prev.socialMedia,
+          [socialMediaField]: value
+        }
+      }));
+    } else {
+      setContactInfo(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const saveContactInfo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage({ text: '', type: '' });
+
+    try {
+      console.log('Admin: İletişim bilgileri kaydediliyor...', contactInfo);
+      
+      // Sosyal medya alanlarını kontrol et ve boş değerleri temizle
+      const cleanedSocialMedia = { ...contactInfo.socialMedia };
+      Object.keys(cleanedSocialMedia).forEach(key => {
+        if (!cleanedSocialMedia[key as keyof typeof cleanedSocialMedia]) {
+          cleanedSocialMedia[key as keyof typeof cleanedSocialMedia] = '';
+        }
+      });
+      
+      const cleanedContactInfo = {
+        ...contactInfo,
+        socialMedia: cleanedSocialMedia,
+        id: 'main' // ID'yi her zaman 'main' olarak ayarla
+      };
+      
+      console.log('Admin: Temizlenmiş iletişim bilgileri:', cleanedContactInfo);
+      
+      // Önce belgenin var olup olmadığını kontrol et
+      const existingDoc = await getDocument('contactInfo', 'main') as any;
+      
+      if (existingDoc) {
+        // Belge varsa güncelle
+        console.log('Admin: Mevcut belge bulundu, güncelleniyor...');
+        await updateDocument('contactInfo', 'main', cleanedContactInfo);
+        console.log('Admin: İletişim bilgileri güncellendi');
+      } else {
+        // Belge yoksa yeni belge oluştur
+        console.log('Admin: Belge bulunamadı, yeni belge oluşturuluyor...');
+        
+        // Önce belgeyi oluştur
+        await addDocument('contactInfo', cleanedContactInfo);
+        
+        // Sonra belgeyi güncelle
+        await updateDocument('contactInfo', 'main', cleanedContactInfo);
+        
+        console.log('Admin: Yeni iletişim bilgileri dokümanı oluşturuldu ve güncellendi');
+      }
+      
+      setMessage({ text: 'İletişim bilgileri başarıyla kaydedildi.', type: 'success' });
+    } catch (error) {
+      console.error('Admin: İletişim bilgileri kaydedilirken hata oluştu:', error);
+      setMessage({ text: 'İletişim bilgileri kaydedilirken bir hata oluştu.', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isActive) return null;
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-black">İletişim Bilgileri Yönetimi</h2>
+      
+      {message.text && (
+        <div className={`p-4 mb-4 rounded-md ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+          {message.text}
+        </div>
+      )}
+      
+      <form onSubmit={saveContactInfo}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <div className="mb-4">
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                Adres
+              </label>
+              <textarea
+                id="address"
+                name="address"
+                value={contactInfo.address}
+                onChange={handleFormChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-800"
+                required
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                Telefon
+              </label>
+              <input
+                type="text"
+                id="phone"
+                name="phone"
+                value={contactInfo.phone}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-800"
+                required
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                E-posta
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={contactInfo.email}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-800"
+                required
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="workingHours" className="block text-sm font-medium text-gray-700 mb-1">
+                Çalışma Saatleri
+              </label>
+              <input
+                type="text"
+                id="workingHours"
+                name="workingHours"
+                value={contactInfo.workingHours}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-800"
+                placeholder="Örn: Pazartesi-Cuma: 08:00-17:00"
+                required
+              />
+            </div>
+          </div>
+          
+          <div>
+            <div className="mb-4">
+              <label htmlFor="mapEmbedUrl" className="block text-sm font-medium text-gray-700 mb-1">
+                Google Harita Embed URL
+              </label>
+              <textarea
+                id="mapEmbedUrl"
+                name="mapEmbedUrl"
+                value={contactInfo.mapEmbedUrl}
+                onChange={handleFormChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-800"
+                placeholder="<iframe src='...'></iframe>"
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                Google Haritalar'dan alınan iframe kodunu buraya yapıştırın.
+              </p>
+            </div>
+            
+            <div className="mb-4">
+              <h3 className="text-md font-medium text-gray-700 mb-2">Sosyal Medya Bağlantıları</h3>
+              
+              <div className="space-y-3">
+                <div>
+                  <label htmlFor="socialMedia.facebook" className="block text-sm font-medium text-gray-700 mb-1">
+                    Facebook
+                  </label>
+                  <input
+                    type="url"
+                    id="socialMedia.facebook"
+                    name="socialMedia.facebook"
+                    value={contactInfo.socialMedia.facebook || ''}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-800"
+                    placeholder="https://facebook.com/..."
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="socialMedia.twitter" className="block text-sm font-medium text-gray-700 mb-1">
+                    Twitter
+                  </label>
+                  <input
+                    type="url"
+                    id="socialMedia.twitter"
+                    name="socialMedia.twitter"
+                    value={contactInfo.socialMedia.twitter || ''}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-800"
+                    placeholder="https://twitter.com/..."
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="socialMedia.instagram" className="block text-sm font-medium text-gray-700 mb-1">
+                    Instagram
+                  </label>
+                  <input
+                    type="url"
+                    id="socialMedia.instagram"
+                    name="socialMedia.instagram"
+                    value={contactInfo.socialMedia.instagram || ''}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-800"
+                    placeholder="https://instagram.com/..."
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="socialMedia.youtube" className="block text-sm font-medium text-gray-700 mb-1">
+                    YouTube
+                  </label>
+                  <input
+                    type="url"
+                    id="socialMedia.youtube"
+                    name="socialMedia.youtube"
+                    value={contactInfo.socialMedia.youtube || ''}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-800"
+                    placeholder="https://youtube.com/..."
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-6 flex justify-end">
+          <button
+            type="submit"
+            disabled={loading}
+            className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+          >
+            {loading ? 'Kaydediliyor...' : 'Kaydet'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+} 
