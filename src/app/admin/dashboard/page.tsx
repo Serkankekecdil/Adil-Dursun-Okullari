@@ -44,6 +44,7 @@ interface Teacher {
   image?: string;
   imagePublicId?: string;
   experience?: string;
+  order?: number;
 }
 
 // Etkinlik tipi tanımı
@@ -95,7 +96,8 @@ export default function AdminDashboard() {
     email: '',
     phone: '',
     bio: '',
-    image: null as File | null
+    image: null as File | null,
+    order: 0
   });
   const [eventFormData, setEventFormData] = useState({
     title: '',
@@ -189,7 +191,8 @@ export default function AdminDashboard() {
         department: formData.department,
         bio: formData.bio,
         image: imageUrl,
-        imagePublicId: imagePublicId
+        imagePublicId: imagePublicId,
+        order: formData.order || 0
       };
       
       await addDocument('teachers', teacherData);
@@ -202,7 +205,8 @@ export default function AdminDashboard() {
         email: '',
         phone: '',
         bio: '',
-        image: null
+        image: null,
+        order: 0
       });
       
       // Öğretmenleri yeniden getir
@@ -239,7 +243,8 @@ export default function AdminDashboard() {
         name: formData.name,
         position: formData.position,
         department: formData.department,
-        bio: formData.bio
+        bio: formData.bio,
+        order: formData.order
       };
       
       // Eğer yeni resim yüklendiyse, resim URL'sini güncelle
@@ -264,7 +269,8 @@ export default function AdminDashboard() {
         email: '',
         phone: '',
         bio: '',
-        image: null
+        image: null,
+        order: 0
       });
       
       setSelectedTeacher(null);
@@ -325,7 +331,8 @@ export default function AdminDashboard() {
           email: teacher.email || '',
           phone: teacher.phone || '',
           bio: teacher.bio || '',
-          image: null // Mevcut resmi dosya olarak tutamayız, sadece URL olarak tutabiliriz
+          image: null, // Mevcut resmi dosya olarak tutamayız, sadece URL olarak tutabiliriz
+          order: teacher.order || 0
         });
         
         setSelectedTeacher(teacherId);
@@ -1430,6 +1437,20 @@ export default function AdminDashboard() {
                         className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                       />
                     </div>
+                    
+                    <div>
+                      <label htmlFor="order" className="block text-sm font-medium text-gray-700">Sıra</label>
+                      <input
+                        type="number"
+                        id="order"
+                        name="order"
+                        value={formData.order}
+                        onChange={handleFormChange}
+                        min="0"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white text-black"
+                      />
+                      <p className="mt-1 text-sm text-gray-500">Öğretmenin görüntülenme sırası. Sayı ne kadar küçükse o kadar üstte görünür.</p>
+                    </div>
                   </div>
                   
                   <div>
@@ -1456,7 +1477,8 @@ export default function AdminDashboard() {
                             email: '',
                             phone: '',
                             bio: '',
-                            image: null
+                            image: null,
+                            order: 0
                           });
                           setSelectedTeacher(null);
                           setIsEditing(false);

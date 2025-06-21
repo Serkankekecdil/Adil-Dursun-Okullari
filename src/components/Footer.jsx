@@ -232,10 +232,16 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Telif Hakkı */}
+        {/* Telif Hakkı ve Geliştirici */}
         <div className="border-t border-gray-800 mt-12 pt-8 text-center">
-          <p className="text-gray-400">
-            &copy; {currentYear} {siteTitle}. Tüm hakları saklıdır.
+          <p className="text-gray-400 mb-2">
+            © 2025 ADİL DURSUN OKULLARI. Tüm hakları saklıdır.
+          </p>
+          <p className="text-gray-500 text-sm">
+            <a href="https://mskcode.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors duration-300">
+              mskcode.com
+            </a>
+            <span> tarafından yapılmıştır.</span>
           </p>
         </div>
       </div>

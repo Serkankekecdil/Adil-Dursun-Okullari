@@ -16,6 +16,7 @@ interface Teacher {
   email?: string;
   phone?: string;
   bio?: string;
+  order?: number;
 }
 
 // Sayfa içeriği tipi tanımı
@@ -46,7 +47,13 @@ export default function TeachersPage() {
         // Öğretmen verilerini çek
         const teachersCollection = await getCollection('teachers');
         if (teachersCollection && teachersCollection.length > 0) {
-          setTeachers(teachersCollection as Teacher[]);
+          // Öğretmenleri order alanına göre sırala
+          const sortedTeachers = [...teachersCollection].sort((a, b) => {
+            const orderA = a.order || Number.MAX_SAFE_INTEGER;
+            const orderB = b.order || Number.MAX_SAFE_INTEGER;
+            return orderA - orderB;
+          });
+          setTeachers(sortedTeachers as Teacher[]);
         } else {
           // Eğer veri yoksa örnek verileri kullan
           setTeachers(defaultTeachers);
@@ -83,7 +90,8 @@ export default function TeachersPage() {
       fallbackColor: 'bg-blue-100',
       email: 'ahmet.yilmaz@adildursunokullari.com',
       phone: '0212 XXX XX XX',
-      bio: 'Ahmet Bey, 12 yıllık deneyimiyle öğrencilere matematiği sevdiren, sabırlı ve özverili bir eğitimcidir.'
+      bio: 'Ahmet Bey, 12 yıllık deneyimiyle öğrencilere matematiği sevdiren, sabırlı ve özverili bir eğitimcidir.',
+      order: 1
     },
     {
       id: 2,
@@ -93,7 +101,8 @@ export default function TeachersPage() {
       image: '/images/teachers/teacher2.jpg',
       fallbackColor: 'bg-green-100',
       email: 'ayse.kaya@adildursunokullari.com',
-      bio: 'Ayşe Hanım, öğrencilerin dil becerilerini geliştirmede uzmanlaşmış, yaratıcı öğretim teknikleri kullanan bir eğitimcidir.'
+      bio: 'Ayşe Hanım, öğrencilerin dil becerilerini geliştirmede uzmanlaşmış, yaratıcı öğretim teknikleri kullanan bir eğitimcidir.',
+      order: 2
     },
     {
       id: 3,
@@ -103,7 +112,8 @@ export default function TeachersPage() {
       image: '/images/teachers/teacher3.jpg',
       fallbackColor: 'bg-yellow-100',
       email: 'mehmet.demir@adildursunokullari.com',
-      bio: 'Mehmet Bey, laboratuvar çalışmalarıyla öğrencilere bilimi uygulamalı olarak öğreten deneyimli bir eğitimcidir.'
+      bio: 'Mehmet Bey, laboratuvar çalışmalarıyla öğrencilere bilimi uygulamalı olarak öğreten deneyimli bir eğitimcidir.',
+      order: 3
     },
     {
       id: 4,
@@ -113,7 +123,8 @@ export default function TeachersPage() {
       image: '/images/teachers/teacher4.jpg',
       fallbackColor: 'bg-red-100',
       email: 'zeynep.sahin@adildursunokullari.com',
-      bio: 'Zeynep Hanım, yurtdışı deneyimiyle öğrencilere İngilizceyi pratik ve eğlenceli bir şekilde öğreten bir eğitimcidir.'
+      bio: 'Zeynep Hanım, yurtdışı deneyimiyle öğrencilere İngilizceyi pratik ve eğlenceli bir şekilde öğreten bir eğitimcidir.',
+      order: 4
     },
     {
       id: 5,
@@ -123,7 +134,8 @@ export default function TeachersPage() {
       image: '/images/teachers/teacher5.jpg',
       fallbackColor: 'bg-purple-100',
       email: 'ali.yildiz@adildursunokullari.com',
-      bio: 'Ali Bey, tarih derslerini interaktif anlatımıyla öğrencilerin ilgisini çeken, alanında uzman bir eğitimcidir.'
+      bio: 'Ali Bey, tarih derslerini interaktif anlatımıyla öğrencilerin ilgisini çeken, alanında uzman bir eğitimcidir.',
+      order: 5
     },
     {
       id: 6,
@@ -133,7 +145,8 @@ export default function TeachersPage() {
       image: '/images/teachers/teacher6.jpg',
       fallbackColor: 'bg-pink-100',
       email: 'fatma.celik@adildursunokullari.com',
-      bio: 'Fatma Hanım, öğrencilerin müzikal yeteneklerini keşfetmelerine yardımcı olan, enerjik ve yaratıcı bir eğitimcidir.'
+      bio: 'Fatma Hanım, öğrencilerin müzikal yeteneklerini keşfetmelerine yardımcı olan, enerjik ve yaratıcı bir eğitimcidir.',
+      order: 6
     },
     {
       id: 7,
@@ -143,7 +156,8 @@ export default function TeachersPage() {
       image: '/images/teachers/teacher7.jpg',
       fallbackColor: 'bg-blue-200',
       email: 'mustafa.kara@adildursunokullari.com',
-      bio: 'Mustafa Bey, öğrencilerin fiziksel gelişimlerini destekleyen, takım ruhunu aşılayan dinamik bir eğitimcidir.'
+      bio: 'Mustafa Bey, öğrencilerin fiziksel gelişimlerini destekleyen, takım ruhunu aşılayan dinamik bir eğitimcidir.',
+      order: 7
     },
     {
       id: 8,
@@ -153,7 +167,8 @@ export default function TeachersPage() {
       image: '/images/teachers/teacher8.jpg',
       fallbackColor: 'bg-green-200',
       email: 'seda.arslan@adildursunokullari.com',
-      bio: 'Seda Hanım, öğrencilerin akademik ve sosyal gelişimlerini destekleyen, empati yeteneği yüksek bir eğitimcidir.'
+      bio: 'Seda Hanım, öğrencilerin akademik ve sosyal gelişimlerini destekleyen, empati yeteneği yüksek bir eğitimcidir.',
+      order: 8
     }
   ];
 

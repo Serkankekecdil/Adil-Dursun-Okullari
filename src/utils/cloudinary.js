@@ -1,11 +1,11 @@
 // Cloudinary entegrasyonu için yardımcı fonksiyonlar
 import { v2 as cloudinary } from 'cloudinary';
 
-// Cloudinary yapılandırması
+// Cloudinary yapılandırması - artık sadece URL oluşturma ve silme işlemleri için kullanılacak
 cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dgqgya9ci',
+  api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY || '376746841873317',
+  api_secret: process.env.CLOUDINARY_API_SECRET || 'qZduIfb5UVKJLBtoiKCK3QFC5AM',
   secure: true
 });
 
@@ -20,19 +20,25 @@ export const uploadImage = async (file, folder = 'adil-dursun-okullari') => {
     // Dosyayı base64 formatına dönüştür
     const base64Data = await convertToBase64(file);
     
-    // Cloudinary'ye yükle
-    const result = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload(
-        base64Data,
-        { folder },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
+    // API rotasını kullanarak yükleme yap
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        base64Image: base64Data,
+        folder
+      }),
     });
-    
-    return result.secure_url;
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Yükleme başarısız oldu');
+    }
+
+    const result = await response.json();
+    return result.url;
   } catch (error) {
     console.error('Resim yükleme hatası:', error);
     throw new Error('Resim yüklenirken bir hata oluştu');

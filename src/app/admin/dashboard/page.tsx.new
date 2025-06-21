@@ -1,1 +1,32 @@
- 
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { 
+  logoutUser, 
+  getCurrentUser, 
+  getCollection,
+  getDocument,
+  addDocument,
+  updateDocument,
+  deleteDocument,
+  uploadFile,
+  deleteFile
+} from '@/firebase/firebaseServices';
+import { User } from 'firebase/auth';
+import FooterManagement from '@/components/admin/FooterManagement';
+import PageContentManagement from '@/components/admin/PageContentManagement';
+import SliderManagement from '@/components/admin/SliderManagement';
+import ContactInfoManagement from '@/components/admin/ContactInfoManagement';
+import PricingManagement from '@/components/admin/PricingManagement';
+import ContactMessagesManagement from '@/components/admin/ContactMessagesManagement';
+import MenuManagement from '@/components/admin/MenuManagement';
+import { auth, db } from '@/firebase/firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc } from 'firebase/firestore';
+import AnnouncementsManagement from '@/components/admin/AnnouncementsManagement';
+import AchievementsManagement from '@/components/admin/AchievementsManagement';
+
+// Buradan sonraki kodu ekleyin 
